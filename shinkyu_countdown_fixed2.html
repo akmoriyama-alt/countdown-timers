@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>鍼灸師国家試験 - カウントダウンタイマー</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', 'Helvetica', 'Yu Gothic', 'Hiragino Sans', sans-serif;
+            background: linear-gradient(to bottom, 
+                #ffffff 0%, 
+                #ffffff 45%, 
+                #ffe6ec 45%, 
+                #ffd9e3 100%
+            );
+            color: #333333;
+            overflow: hidden;
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+
+        .logo {
+            position: absolute;
+            top: 30px;
+            right: 40px;
+            width: 150px;
+            height: auto;
+            z-index: 10;
+        }
+
+        .container {
+            text-align: center;
+            width: 100%;
+            max-width: 1920px;
+            padding: 30px;
+        }
+
+        .title {
+            font-size: 5rem;
+            font-weight: 200;
+            margin-bottom: 15px;
+            color: #000000;
+            letter-spacing: 8px;
+        }
+
+        .subtitle {
+            font-size: 2rem;
+            margin-bottom: 40px;
+            color: #666666;
+            font-weight: 300;
+        }
+
+        .exam-date {
+            font-size: 2.8rem;
+            margin-bottom: 60px;
+            color: #000000;
+            font-weight: 400;
+            border: 3px solid #000000;
+            padding: 25px 50px;
+            display: inline-block;
+            background: #ffffff;
+        }
+
+        .countdown {
+            display: flex;
+            justify-content: center;
+            gap: 40px;
+            margin-bottom: 50px;
+        }
+
+        .time-box {
+            background: #ffffff;
+            border: 5px solid #000000;
+            padding: 40px 30px;
+            min-width: 300px;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .time-box:hover {
+            background: #000000;
+            color: #ffffff;
+            transform: scale(1.08);
+        }
+
+        .time-number {
+            font-size: 12rem;
+            font-weight: 900;
+            line-height: 0.85;
+            margin-bottom: 25px;
+            font-family: 'Impact', 'Arial Black', 'Helvetica', monospace;
+            color: #000000;
+            letter-spacing: -5px;
+        }
+
+        .time-box:hover .time-number {
+            color: #ffffff;
+        }
+
+        .time-label {
+            font-size: 1.8rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            border-top: 3px solid #000000;
+            padding-top: 15px;
+            color: #000000;
+        }
+
+        .time-box:hover .time-label {
+            border-top-color: #ffffff;
+            color: #ffffff;
+        }
+
+        .message {
+            font-size: 2rem;
+            margin-top: 40px;
+            color: #666666;
+            font-weight: 300;
+        }
+
+        .celebration {
+            display: none;
+            font-size: 3.5rem;
+            color: #000000;
+            font-weight: 500;
+        }
+
+        .time-number {
+            animation: pulse-number 2.5s infinite ease-in-out;
+        }
+
+        @keyframes pulse-number {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.03); }
+        }
+
+        .countdown {
+            animation: fadeIn 1.5s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .flash {
+            animation: flash 0.4s ease-out;
+        }
+
+        @keyframes flash {
+            0% { background-color: #000000; color: #ffffff; transform: scale(1.05); }
+            100% { background-color: #ffffff; color: #000000; transform: scale(1); }
+        }
+
+        @media (min-width: 1920px) {
+            .logo { width: 180px; top: 40px; right: 50px; }
+            .title { font-size: 6rem; }
+            .subtitle { font-size: 2.5rem; }
+            .exam-date { font-size: 3.2rem; padding: 30px 60px; }
+            .time-number { font-size: 14rem; }
+            .time-box { min-width: 350px; padding: 50px 40px; }
+            .time-label { font-size: 2rem; }
+            .message { font-size: 2.5rem; }
+        }
+
+        @media (max-width: 1400px) {
+            .logo { width: 130px; }
+            .time-number { font-size: 10rem; }
+            .countdown { gap: 35px; }
+            .time-box { min-width: 260px; padding: 35px 25px; }
+        }
+
+        @media (max-width: 1000px) {
+            .logo { width: 110px; top: 20px; right: 30px; }
+            .time-number { font-size: 8rem; }
+            .countdown { gap: 25px; }
+            .time-box { min-width: 220px; padding: 30px 20px; }
+            .title { font-size: 3.5rem; }
+        }
+
+        @media (max-width: 768px) {
+            .logo { width: 90px; top: 15px; right: 20px; }
+            .countdown { 
+                flex-direction: column; 
+                gap: 25px; 
+                align-items: center;
+            }
+            .time-box { 
+                min-width: 250px;
+                max-width: 350px;
+            }
+            .time-number { font-size: 9rem; }
+        }
+
+        @media print {
+            body { background: white; }
+            .time-box { border: 4px solid black; }
+        }
+
+        @media (min-resolution: 2dppx) {
+            .time-number {
+                -webkit-font-smoothing: antialiased;
+                -moz-osx-font-smoothing: grayscale;
+            }
+        }
+    </style>
+</head>
+<body>
+    <img src="https://page.gensparksite.com/v1/base64_upload/49a84d050fca839f6863a744eccb25f2" alt="Nihon Isen" class="logo">
+
+    <div class="container">
+        <h1 class="title">鍼灸師国家試験</h1>
+        <h2 class="subtitle">第32回はり師・きゅう師国家試験まで</h2>
+        
+        <div class="exam-date">
+            試験日:2026年2月22日(日)
+        </div>
+
+        <div class="countdown" id="countdown">
+            <div class="time-box">
+                <div class="time-number" id="days">000</div>
+                <div class="time-label">DAYS</div>
+            </div>
+            <div class="time-box">
+                <div class="time-number" id="hours">00</div>
+                <div class="time-label">HOURS</div>
+            </div>
+            <div class="time-box">
+                <div class="time-number" id="minutes">00</div>
+                <div class="time-label">MINUTES</div>
+            </div>
+            <div class="time-box">
+                <div class="time-number" id="seconds">00</div>
+                <div class="time-label">SECONDS</div>
+            </div>
+        </div>
+
+        <div class="message" id="message">
+            目標達成まで一歩ずつ前進しましょう
+        </div>
+
+        <div class="celebration" id="celebration">
+            試験当日です。これまでの努力を信じて頑張ってください。
+        </div>
+    </div>
+
+    <script>
+        const examDate = new Date('2026-02-22T09:00:00').getTime();
+        let previousValues = { days: '', hours: '', minutes: '', seconds: '' };
+
+        function addFlashEffect(elementId) {
+            const element = document.getElementById(elementId);
+            element.parentElement.classList.add('flash');
+            setTimeout(() => {
+                element.parentElement.classList.remove('flash');
+            }, 400);
+        }
+
+        function updateCountdown() {
+            const now = new Date().getTime();
+            const distance = examDate - now;
+
+            const days = Math.floor(distance / (1000 * 60 * 60 * 24));
+            const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+            const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+            const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+
+            const currentValues = {
+                days: String(days).padStart(3, '0'),
+                hours: String(hours).padStart(2, '0'),
+                minutes: String(minutes).padStart(2, '0'),
+                seconds: String(seconds).padStart(2, '0')
+            };
+
+            Object.keys(currentValues).forEach(key => {
+                if (previousValues[key] !== currentValues[key] && previousValues[key] !== '') {
+                    addFlashEffect(key);
+                }
+                document.getElementById(key).textContent = currentValues[key];
+                previousValues[key] = currentValues[key];
+            });
+
+            const messageElement = document.getElementById('message');
+            const celebrationElement = document.getElementById('celebration');
+            const countdownElement = document.getElementById('countdown');
+
+            if (distance < 0) {
+                countdownElement.style.display = 'none';
+                celebrationElement.style.display = 'block';
+                messageElement.textContent = '試験お疲れ様でした';
+            } else if (days === 0) {
+                messageElement.textContent = '試験当日です。落ち着いて全力を尽くしてください';
+            } else if (days <= 7) {
+                messageElement.textContent = '最終調整の時期です。体調管理を第一に';
+            } else if (days <= 30) {
+                messageElement.textContent = '仕上げの段階です。重要ポイントの確認を';
+            } else if (days <= 100) {
+                messageElement.textContent = '本格的な対策期間です。計画的に学習しましょう';
+            } else {
+                messageElement.textContent = '目標達成まで一歩ずつ前進しましょう';
+            }
+        }
+
+        updateCountdown();
+        setInterval(updateCountdown, 1000);
+
+        document.addEventListener('visibilitychange', function() {
+            if (!document.hidden) {
+                updateCountdown();
+            }
+        });
+
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'F11') {
+                e.preventDefault();
+                if (!document.fullscreenElement) {
+                    document.documentElement.requestFullscreen();
+                } else {
+                    document.exitFullscreen();
+                }
+            }
+        });
+
+        document.addEventListener('click', function enableFullscreen() {
+            if (!document.fullscreenElement) {
+                document.documentElement.requestFullscreen().catch(err => {
+                    console.log('フルスクリーンモードに移行できませんでした');
+                });
+            }
+            document.removeEventListener('click', enableFullscreen);
+        }, { once: true });
+    </script>
+</body>
+</html>
