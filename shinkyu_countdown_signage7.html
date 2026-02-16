@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>鍼灸師国家試験 - カウントダウンタイマー</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Arial, Helvetica, sans-serif;
+            color: #333333;
+            overflow: hidden;
+            height: 100vh;
+            width: 100vw;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            background: linear-gradient(to bottom, 
+                #ffffff 0%, 
+                #ffffff 45%, 
+                #ffe6ec 45%, 
+                #ffd9e3 100%
+            );
+        }
+
+        .logo {
+            position: absolute;
+            top: 30px;
+            right: 40px;
+            width: 140px;
+            height: auto;
+            z-index: 50;
+            background: #ffffff;
+            padding: 8px;
+            border-radius: 8px;
+        }
+
+        .container {
+            text-align: center;
+            width: 100%;
+            max-width: 1920px;
+            padding: 20px;
+            position: relative;
+            z-index: 10;
+        }
+
+        .title {
+            font-size: 5.5rem;
+            font-weight: 200;
+            margin-bottom: 10px;
+            color: #000000;
+            letter-spacing: 10px;
+        }
+
+        .subtitle {
+            font-size: 2.5rem;
+            margin-bottom: 30px;
+            color: #666666;
+            font-weight: 300;
+        }
+
+        .exam-date {
+            font-size: 3.2rem;
+            margin-bottom: 40px;
+            color: #000000;
+            font-weight: 400;
+            border: 4px solid #000000;
+            padding: 25px 50px;
+            display: inline-block;
+            background: rgba(255, 255, 255, 0.9);
+            box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+        }
+
+        .countdown {
+            display: flex;
+            justify-content: center;
+            gap: 35px;
+            margin-bottom: 35px;
+        }
+
+        .time-box {
+            background: rgba(255, 255, 255, 0.95);
+            border: 4px solid #000000;
+            padding: 40px 55px;
+            border-radius: 25px;
+            min-width: 240px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+        }
+
+        .time-number {
+            font-size: 7.5rem;
+            font-weight: 700;
+            color: #000000;
+            line-height: 1;
+            margin-bottom: 15px;
+        }
+
+        .time-label {
+            font-size: 1.8rem;
+            color: #666666;
+            font-weight: 400;
+            letter-spacing: 4px;
+        }
+
+        .message {
+            font-size: 2.6rem;
+            color: #000000;
+            font-weight: 300;
+            max-width: 1500px;
+            margin: 0 auto;
+            line-height: 1.6;
+            padding: 30px 40px;
+            background: rgba(255, 255, 255, 0.8);
+            border-radius: 15px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.05);
+        }
+
+        .celebration {
+            font-size: 4.5rem;
+            color: #ff1493;
+            font-weight: 700;
+            display: none;
+        }
+
+        /* 浮遊テキスト */
+        .floating-words {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 9999;
+            overflow: hidden;
+        }
+
+        .floating-word {
+            position: absolute;
+            font-size: 9rem;
+            font-weight: 700;
+            color: #ff69b4;
+            opacity: 0;
+            white-space: nowrap;
+        }
+
+        @keyframes float-up {
+            0% {
+                transform: translateY(120vh);
+                opacity: 0;
+            }
+            10% {
+                opacity: 0.8;
+            }
+            90% {
+                opacity: 0.8;
+            }
+            100% {
+                transform: translateY(-20vh);
+                opacity: 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- 浮遊テキスト -->
+    <div class="floating-words" id="floatingWords"></div>
+
+    <img src="https://page.gensparksite.com/v1/base64_upload/49a84d050fca839f6863a744eccb25f2" alt="Nihon Isen" class="logo" onerror="this.style.display='none'">
+
+    <div class="container">
+        <h1 class="title">鍼灸師国家試験</h1>
+        <h2 class="subtitle">第34回はり師・きゅう師国家試験まで</h2>
+        
+        <div class="exam-date">
+            試験日:2026年2月22日(日)
+        </div>
+
+        <div class="countdown" id="countdown">
+            <div class="time-box">
+                <div class="time-number" id="days">000</div>
+                <div class="time-label">DAYS</div>
+            </div>
+            <div class="time-box">
+                <div class="time-number" id="hours">00</div>
+                <div class="time-label">HOURS</div>
+            </div>
+            <div class="time-box">
+                <div class="time-number" id="minutes">00</div>
+                <div class="time-label">MINUTES</div>
+            </div>
+        </div>
+
+        <div class="message" id="message">
+            あなたの夢への道のり、一日一日を大切に歩んでいきましょう
+        </div>
+
+        <div class="celebration" id="celebration">
+            今日がその日です。これまでの全ての努力が、あなたの力になっています。自信を持って臨んでください。
+        </div>
+    </div>
+
+    <script>
+        var examDate = new Date('2026-02-22T09:00:00').getTime();
+        var previousValues = { days: '', hours: '', minutes: '' };
+
+        // 浮遊テキストの言葉リスト
+        var floatingMessages = [
+            '頑張れ!',
+            '応援してる!',
+            '君ならできる!',
+            '信じて!',
+            'ファイト!',
+            '夢を叶えよう!',
+            '最後まで!',
+            '諦めない!',
+            '絶対合格!',
+            '努力は裏切らない!'
+        ];
+
+        // 浮遊テキストを生成
+        function createFloatingWord() {
+            try {
+                var container = document.getElementById('floatingWords');
+                if (!container) return;
+
+                var word = document.createElement('div');
+                word.className = 'floating-word';
+                word.textContent = floatingMessages[Math.floor(Math.random() * floatingMessages.length)];
+                
+                // ランダムな横位置（5%〜85%）
+                var leftPosition = Math.random() * 80 + 5;
+                word.style.left = leftPosition + '%';
+                
+                // アニメーション時間（12〜16秒）
+                var duration = Math.random() * 4 + 12;
+                word.style.animation = 'float-up ' + duration + 's linear';
+                
+                container.appendChild(word);
+                
+                // アニメーション終了後に削除
+                setTimeout(function() {
+                    if (word.parentNode) {
+                        word.parentNode.removeChild(word);
+                    }
+                }, duration * 1000);
+            } catch (error) {
+                console.error('Floating word error:', error);
+            }
+        }
+
+        // 3秒ごとに浮遊テキストを生成
+        setInterval(createFloatingWord, 3000);
+        // 初回実行
+        createFloatingWord();
+
+        function updateCountdown() {
+            try {
+                var now = new Date().getTime();
+                var distance = examDate - now;
+
+                var days = Math.floor(distance / (1000 * 60 * 60 * 24));
+                var hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                var minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+
+                var daysStr = String(days).length < 3 ? ('00' + days).slice(-3) : String(days);
+                var hoursStr = ('0' + hours).slice(-2);
+                var minutesStr = ('0' + minutes).slice(-2);
+
+                var daysEl = document.getElementById('days');
+                var hoursEl = document.getElementById('hours');
+                var minutesEl = document.getElementById('minutes');
+                var messageEl = document.getElementById('message');
+                var celebrationEl = document.getElementById('celebration');
+                var countdownEl = document.getElementById('countdown');
+
+                if (daysEl) daysEl.textContent = daysStr;
+                if (hoursEl) hoursEl.textContent = hoursStr;
+                if (minutesEl) minutesEl.textContent = minutesStr;
+
+                if (distance < 0) {
+                    if (countdownEl) countdownEl.style.display = 'none';
+                    if (celebrationEl) celebrationEl.style.display = 'block';
+                    if (messageEl) messageEl.textContent = '本当にお疲れ様でした。あなたの頑張りは必ず実を結びます';
+                } else if (days === 0) {
+                    if (messageEl) messageEl.textContent = 'いよいよ本番です。深呼吸して、いつも通りの力を発揮してください。応援しています';
+                } else if (days === 1) {
+                    if (messageEl) messageEl.textContent = '明日が本番です。今日は早めに休んで、万全の体調で臨みましょう';
+                } else if (days <= 3) {
+                    if (messageEl) messageEl.textContent = 'あと少しです。無理せず、今できることを確実に。あなたなら大丈夫';
+                } else if (days <= 7) {
+                    if (messageEl) messageEl.textContent = 'ラストスパートです。焦らず丁寧に、一つずつ確認していきましょう';
+                } else if (days <= 14) {
+                    if (messageEl) messageEl.textContent = '最終調整の時期です。睡眠と栄養をしっかり取って、ベストコンディションを保ちましょう';
+                } else if (days <= 30) {
+                    if (messageEl) messageEl.textContent = '総仕上げの段階です。過去問の見直しと重要ポイントの確認を丁寧に';
+                } else if (days <= 60) {
+                    if (messageEl) messageEl.textContent = '実力を磨く大切な時期です。苦手分野の克服に取り組みましょう';
+                } else if (days <= 100) {
+                    if (messageEl) messageEl.textContent = '本格的な対策期間です。計画的に、そして着実に学習を進めていきましょう';
+                } else {
+                    if (messageEl) messageEl.textContent = 'あなたの夢への道のり、一日一日を大切に歩んでいきましょう';
+                }
+            } catch (error) {
+                console.error('Error:', error);
+            }
+        }
+
+        // 初期実行
+        updateCountdown();
+        
+        // 1秒ごとに更新
+        setInterval(updateCountdown, 1000);
+
+        // ページが表示されたときに更新
+        if (document.addEventListener) {
+            document.addEventListener('visibilitychange', function() {
+                if (!document.hidden) {
+                    updateCountdown();
+                }
+            });
+        }
+    </script>
+</body>
+</html>
