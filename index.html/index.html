@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NIHON ISEN - Ultra Sakura Welcome 2026 (Outdoor High Contrast)</title>
+<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@700&family=IBM+Plex+Mono:wght@300;600&family=Noto+Sans+JP:wght@900&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #FFF5F7; /* 背景：ごく薄いピンク */
+  --acc-blue: #003366; 
+  --acc-pink-dark: #D10074; 
+  --acc-pink-bright: #FF1493;
+  /* ── 【重要】背景テキスト用：高コントラスト色 ── */
+  --bg-text-color: #C80060; /* より濃いマゼンタ（投影時も鮮明） */
+}
+
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
+body, html {
+    width: 1920px; height: 1080px; overflow: hidden;
+    background: var(--bg); color: var(--acc-blue);
+    font-family: 'IBM Plex Mono', 'Noto Sans JP', sans-serif;
+}
+
+/* ── 背景層：巨大スクロールテキスト ── */
+.bg-layer { 
+    position: fixed; 
+    inset: 0; 
+    z-index: 1; 
+    overflow: hidden;
+    background: var(--bg);
+}
+
+.scrolling-wrapper {
+    position: absolute; 
+    top: 50%; 
+    left: 0;
+    transform: translateY(-50%);
+    width: 300%; /* 【重要】テキストが常に流れるように300%に設定 */
+    overflow: visible; /* 隠さない */
+    white-space: nowrap;
+    height: 500px;      /* ← 高さを明確に指定 */
+    z-index: 2;         
+}
+
+.scrolling-text {
+    display: inline-block;
+    font-family: 'Oswald', sans-serif; 
+    font-size: 420px; /* サイズ調整 */
+    font-weight: 700;
+    color: var(--bg-text-color); /* 高コントラスト色 */
+    white-space: nowrap;
+    /* GPU描画最適化 */
+    will-change: transform;
+    transform: translate3d(0, 0, 0);
+    -webkit-font-smoothing: antialiased;
+    -webkit-backface-visibility: hidden;
+    backface-visibility: hidden;
+    /* 【修正】スムーズで連続的なアニメーション */
+    animation: scrollLeftContinuous 80s linear infinite;
+    letter-spacing: 0.1em;
+}
+
+/* ── シームレスなスクロールアニメーション ── */
+@keyframes scrollLeftContinuous {
+    0% { 
+        transform: translate3d(0, 0, 0); 
+    }
+    100% { 
+        transform: translate3d(-33.333%, 0, 0); /* 300%で3回ループ */
+    }
+}
+
+/* ── 桜吹雪 ── */
+#sakura-container { 
+    position: fixed; 
+    inset: 0; 
+    z-index: 30; 
+    pointer-events: none; 
+}
+
+.petal {
+    position: absolute; 
+    background: linear-gradient(135deg, #ffc0cb 0%, var(--acc-pink-bright) 100%);
+    border-radius: 100% 0 100% 0; 
+    animation: storm linear forwards;
+}
+
+.petal.f { 
+    filter: blur(8px); 
+    z-index: 150; 
+    opacity: 0.6; 
+}
+
+.petal.m { 
+    filter: blur(0px); 
+    z-index: 40; 
+    opacity: 0.95; 
+}
+
+.petal.b { 
+    filter: blur(3px); 
+    z-index: 10; 
+    opacity: 0.7; 
+}
+
+@keyframes storm {
+    0% { 
+        transform: translateY(-200px) translateX(0) rotate(0deg) scale(0); 
+        opacity: 0; 
+    }
+    5% { 
+        opacity: 1; 
+        scale: 1.5; 
+    }
+    25% { 
+        transform: translateY(250px) translateX(-200px) rotate(400deg); 
+    }
+    60% { 
+        transform: translateY(650px) translateX(150px) rotate(900deg); 
+    }
+    100% { 
+        transform: translateY(1250px) translateX(500px) rotate(2000deg) scale(0.3); 
+        opacity: 0; 
+    }
+}
+
+/* ── メインレイアウト ── */
+.shell {
+    position: relative; 
+    z-index: 10;
+    width: 100%; 
+    height: 100%;
+    display: flex; 
+    flex-direction: column; 
+    justify-content: space-between;
+    padding: 100px 140px;
+    background: transparent;
+}
+
+.logo-panel {
+    position: absolute; 
+    top: 80px; 
+    left: 140px;
+    background: #fff;
+    display: inline-flex; 
+    align-items: center;
+    padding: 20px 40px; 
+    border-radius: 4px;
+    box-shadow: 20px 20px 60px rgba(0, 51, 102, 0.2);
+    border-left: 20px solid var(--acc-blue);
+}
+
+.logo-img { 
+    height: 90px; 
+    width: auto; 
+}
+
+.main-stage { 
+    flex: 1; 
+    display: flex; 
+    align-items: center; 
+    position: relative; 
+    margin-top: 150px; 
+}
+
+.scene { 
+    position: absolute; 
+    display: none; 
+    flex-direction: column; 
+    width: 100%; 
+}
+
+.scene.active { 
+    display: flex; 
+    animation: impactEntry 0.8s cubic-bezier(0.19, 1, 0.22, 1) forwards; 
+}
+
+@keyframes impactEntry {
+    0% { 
+        opacity: 0; 
+        transform: scale(1.1) translateY(80px); 
+        filter: blur(20px); 
+    }
+    100% { 
+        opacity: 1; 
+        transform: scale(1) translateY(0); 
+        filter: blur(0); 
+    }
+}
+
+.eyebrow {
+    font-family: 'IBM Plex Mono'; 
+    font-size: 42px; 
+    color: var(--acc-pink-dark);
+    letter-spacing: 0.7em; 
+    margin-bottom: 35px; 
+    font-weight: 600;
+    text-shadow: 
+        3px 3px 0 #fff, -3px -3px 0 #fff, 
+        3px -3px 0 #fff, -3px 3px 0 #fff;
+}
+
+/* ── メインタイトル ── */
+.title-jp {
+    font-family: 'Noto Sans JP'; 
+    font-size: 130px; 
+    font-weight: 900;
+    color: var(--acc-blue);
+    white-space: nowrap;
+    text-shadow: 
+        10px 10px 0 #fff, -10px -10px 0 #fff, 
+        10px -10px 0 #fff, -10px 10px 0 #fff,
+        10px 0px 0 #fff, -10px 0px 0 #fff,
+        0px 10px 0 #fff, 0px -10px 0 #fff;
+    line-height: 1.1;
+}
+
+.title-jp.long-text {
+    font-size: 100px;
+}
+
+.title-en-sub {
+    font-family: 'Oswald'; 
+    font-size: 78px; 
+    color: var(--acc-blue);
+    letter-spacing: 0.18em; 
+    margin-top: 30px;
+    text-shadow: 
+        4px 4px 0 #fff, -4px -4px 0 #fff, 
+        4px -4px 0 #fff, -4px 4px 0 #fff;
+}
+
+.footer {
+    display: flex; 
+    justify-content: space-between; 
+    align-items: flex-end;
+    border-top: 6px solid var(--acc-blue); 
+    padding-top: 55px;
+}
+
+.ft-info { 
+    font-family: 'IBM Plex Mono'; 
+    font-size: 28px; 
+    font-weight: 600; 
+    color: var(--acc-blue); 
+    letter-spacing: 0.1em; 
+}
+
+#live-clock { 
+    font-family: 'IBM Plex Mono'; 
+    font-size: 140px; 
+    font-weight: 300; 
+    color: var(--acc-blue); 
+    line-height: 0.7; 
+}
+
+/* ── サイネージ用の最適化設定 ── */
+@media screen {
+    body, html {
+        /* 色域を最大化 */
+        color-scheme: light;
+    }
+    
+    .scrolling-text {
+        /* より鮮やかな色を強制 */
+        color: #C80060;
+        /* テキストレンダリング最適化 */
+        text-rendering: optimizeLegibility;
+        /* 明るさの最適化 */
+        filter: brightness(1.1);
+    }
+}
+</style>
+</head>
+<body>
+
+<div class="bg-layer">
+    <div class="scrolling-wrapper">
+        <!-- 【修正】テキストを3回繰り返して、常にスクロールテキストが表示される状態を保証 -->
+        <div class="scrolling-text">WELCOME TO NIHON ISEN // SPRING SESSION 2026 // BLOOM YOUR FUTURE //  WELCOME TO NIHON ISEN // SPRING SESSION 2026 // BLOOM YOUR FUTURE //  WELCOME TO NIHON ISEN // SPRING SESSION 2026 // BLOOM YOUR FUTURE // </div>
+    </div>
+</div>
+
+<div id="sakura-container"></div>
+
+<div class="shell">
+    <header>
+        <div class="logo-panel">
+            <img src="logo.jpg" class="logo-img" alt="日本医専">
+        </div>
+    </header>
+
+    <main class="main-stage">
+        <div class="scene active">
+            <div class="eyebrow">NEW ACADEMIC YEAR</div>
+            <h1 class="title-jp">新年度が<br>スタートしました</h1>
+            <p class="title-en-sub">BLOOM YOUR FUTURE</p>
+        </div>
+        <div class="scene">
+            <div class="eyebrow">CONGRATULATIONS</div>
+            <h1 class="title-jp long-text">新入生のみなさま<br>ご入学おめでとうございます</h1>
+            <p class="title-en-sub">WELCOME TO OUR CAMPUS</p>
+        </div>
+        <div class="scene">
+            <div class="eyebrow">STEP FORWARD</div>
+            <h1 class="title-jp long-text">在校生のみなさま<br>今年度もよろしくお願いします</h1>
+            <p class="title-en-sub">THE NEXT STAGE BEGINS</p>
+        </div>
+    </main>
+
+    <footer class="footer">
+        <div class="ft-info">NIHON ISEN<br>SPRING 2026 / CAMPUS </div>
+        <div id="live-clock">00:00:00</div>
+    </footer>
+</div>
+
+<script>
+function createPetal() {
+    const container = document.getElementById('sakura-container');
+    const petal = document.createElement('div');
+    const r = Math.random();
+    
+    if (r > 0.88) {
+        petal.className = 'petal f';
+        const s = Math.random() * 60 + 40;
+        petal.style.width = s + 'px'; 
+        petal.style.height = s * 0.8 + 'px';
+    } else if (r > 0.35) {
+        petal.className = 'petal m';
+        const s = Math.random() * 28 + 15;
+        petal.style.width = s + 'px'; 
+        petal.style.height = s * 0.8 + 'px';
+    } else {
+        petal.className = 'petal b';
+        const s = Math.random() * 16 + 8;
+        petal.style.width = s + 'px'; 
+        petal.style.height = s * 0.8 + 'px';
+    }
+    
+    petal.style.left = (Math.random() * 160 - 30) + 'vw';
+    const d = Math.random() * 4 + 4;
+    petal.style.animationDuration = d + 's';
+    container.appendChild(petal);
+    
+    setTimeout(() => petal.remove(), d * 1000);
+}
+
+setInterval(createPetal, 15);
+
+function updateClock() {
+    const now = new Date();
+    const pad = (n) => String(n).padStart(2, '0');
+    document.getElementById('live-clock').textContent = 
+        `${pad(now.getHours())}:${pad(now.getMinutes())}:${pad(now.getSeconds())}`;
+}
+
+setInterval(updateClock, 1000);
+updateClock();
+
+const scenes = document.querySelectorAll('.scene');
+let cur = 0;
+
+setInterval(() => {
+    scenes[cur].classList.remove('active');
+    cur = (cur + 1) % scenes.length;
+    scenes[cur].classList.add('active');
+}, 9000);
+
+document.addEventListener('keydown', e => {
+    if (e.key === 'F11') {
+        e.preventDefault();
+        if (!document.fullscreenElement) {
+            document.documentElement.requestFullscreen();
+        } else {
+            document.exitFullscreen();
+        }
+    }
+});
+</script>
+</body>
+</html>
