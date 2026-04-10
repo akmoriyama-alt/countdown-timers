@@ -1,0 +1,413 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NIHON ISEN SIGNAGE | 正門サイネージ</title>
+    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@300;400;600;700&family=Noto+Sans+JP:wght@900&family=Space+Grotesk:wght@700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-dark: #0a0a0a;
+            --text-primary: #ffffff;
+            --text-secondary: #cccccc;
+            --border: #2a2a2a;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html, body {
+            width: 100%;
+            height: 100vh;
+            background: var(--bg-dark);
+            color: var(--text-primary);
+            font-family: 'IBM Plex Mono', monospace;
+            overflow: hidden;
+        }
+
+        /* バックグラウンド装飾 */
+        .bg-grid {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: 
+                linear-gradient(90deg, rgba(255,255,255,0.02) 1px, transparent 1px),
+                linear-gradient(0deg, rgba(255,255,255,0.02) 1px, transparent 1px);
+            background-size: 80px 80px;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        /* メインレイアウト */
+        .wrapper {
+            position: relative;
+            z-index: 1;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* ヘッダー */
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            padding: 35px 100px 25px;
+            border-bottom: 1px solid var(--border);
+            height: auto;
+            flex-shrink: 0;
+        }
+
+        .logo-section {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .logo-text h1 {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 28px;
+            font-weight: 700;
+            letter-spacing: 1px;
+            margin-bottom: 4px;
+        }
+
+        .logo-text p {
+            font-size: 12px;
+            color: var(--text-secondary);
+            letter-spacing: 1px;
+            text-transform: uppercase;
+        }
+
+        /* メインコンテナ */
+        .main-content {
+            flex: 1;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 60px;
+            padding: 40px 100px;
+            align-items: center;
+            overflow: hidden;
+        }
+
+        /* ===== 左パネル：時計 ===== */
+        .panel-time {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            gap: 40px;
+        }
+
+        .time-section {
+            border-left: 4px solid var(--text-primary);
+            padding-left: 50px;
+        }
+
+        .time-label {
+            font-size: 16px;
+            font-weight: 300;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            color: var(--text-secondary);
+            margin-bottom: 20px;
+        }
+
+        .time-display {
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 140px;
+            font-weight: 700;
+            line-height: 0.9;
+            letter-spacing: -3px;
+            color: var(--text-primary);
+            font-variant-numeric: tabular-nums;
+        }
+
+        .date-display {
+            font-size: 20px;
+            font-weight: 300;
+            color: var(--text-secondary);
+            margin-top: 15px;
+            letter-spacing: 1px;
+        }
+
+        .building-info {
+            font-size: 14px;
+            color: var(--text-secondary);
+            line-height: 1.8;
+            letter-spacing: 0.5px;
+        }
+
+        .building-info strong {
+            color: var(--text-primary);
+            font-weight: 600;
+            display: block;
+            margin-bottom: 8px;
+        }
+
+        /* ===== 右パネル：天気 ===== */
+        .panel-weather {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: flex-end;
+            gap: 40px;
+        }
+
+        .weather-section {
+            border-right: 4px solid var(--text-primary);
+            padding-right: 50px;
+            text-align: right;
+        }
+
+        .weather-label {
+            font-size: 16px;
+            font-weight: 300;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            color: var(--text-secondary);
+            margin-bottom: 30px;
+        }
+
+        .weather-display {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            gap: 20px;
+        }
+
+        .weather-icon {
+            font-size: 100px;
+            line-height: 1;
+            filter: drop-shadow(0 8px 24px rgba(0,0,0,0.4));
+        }
+
+        .weather-temp {
+            font-size: 120px;
+            font-weight: 300;
+            line-height: 0.9;
+            font-variant-numeric: tabular-nums;
+            color: var(--text-primary);
+        }
+
+        .weather-description {
+            font-size: 24px;
+            color: var(--text-secondary);
+            letter-spacing: 0.5px;
+        }
+
+        .weather-details {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-top: 25px;
+            padding-top: 25px;
+            border-top: 1px solid var(--border);
+        }
+
+        .weather-detail-item {
+            text-align: right;
+        }
+
+        .weather-detail-label {
+            font-size: 12px;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 6px;
+        }
+
+        .weather-detail-value {
+            font-size: 28px;
+            font-weight: 600;
+            color: var(--text-primary);
+            font-variant-numeric: tabular-nums;
+        }
+
+        .location {
+            font-size: 13px;
+            color: var(--text-secondary);
+            letter-spacing: 0.5px;
+        }
+
+        /* ===== フッター ===== */
+        .footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 100px;
+            border-top: 1px solid var(--border);
+            height: 60px;
+        }
+
+        .status-indicator {
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            background: #22dd22;
+            border-radius: 50%;
+            margin-right: 10px;
+            animation: pulse 2s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        .footer-info {
+            font-size: 12px;
+            color: var(--text-secondary);
+            letter-spacing: 0.5px;
+        }
+
+        .update-time {
+            margin-left: 40px;
+        }
+    </style>
+</head>
+<body>
+    <div class="bg-grid"></div>
+
+    <div class="wrapper">
+        <!-- ヘッダー -->
+        <div class="header">
+            <div class="logo-section">
+                <img src="logo.jpg" alt="Nihon Isen Logo" style="height: 80px; width: auto; object-fit: contain;">
+                <div class="logo-text">
+                    <h1>NIHON ISEN</h1>
+                    <p>Campus Signage 2026</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- メインコンテンツ -->
+        <div class="main-content">
+            <!-- 左パネル：時計 -->
+            <div class="panel-time">
+                <div class="time-section">
+                    <div class="time-label">Current Time</div>
+                    <div class="time-display" id="clock">00:00:00</div>
+                    <div class="date-display" id="date">Monday, January 1</div>
+                </div>
+                <div class="building-info">
+                    <strong>日本医専</strong>
+                    <div>東京キャンパス</div>
+                    <div>〒169-0075</div>
+                    <div>新宿区高田馬場 1-18-18</div>
+                </div>
+            </div>
+
+            <!-- 右パネル：天気 -->
+            <div class="panel-weather">
+                <div class="weather-section">
+                    <div class="weather-label">Tokyo Weather</div>
+                    <div class="weather-display">
+                        <div class="weather-icon" id="weatherIcon">🌤️</div>
+                        <div class="weather-temp" id="temperature">18°</div>
+                        <div class="weather-description" id="weatherDesc">Partly Cloudy</div>
+                    </div>
+                    <div class="weather-details">
+                        <div class="weather-detail-item">
+                            <div class="weather-detail-label">Humidity</div>
+                            <div class="weather-detail-value" id="humidity">65%</div>
+                        </div>
+                        <div class="weather-detail-item">
+                            <div class="weather-detail-label">Wind</div>
+                            <div class="weather-detail-value" id="windSpeed">3.5 m/s</div>
+                        </div>
+                        <div class="weather-detail-item">
+                            <div class="weather-detail-label">Pressure</div>
+                            <div class="weather-detail-value" id="pressure">1013 hPa</div>
+                        </div>
+                        <div class="weather-detail-item">
+                            <div class="weather-detail-label">Feels Like</div>
+                            <div class="weather-detail-value" id="feelsLike">16°</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="location" id="location">Tokyo, Japan</div>
+            </div>
+        </div>
+
+        <!-- フッター -->
+        <div class="footer">
+            <div class="footer-info">
+                <span class="status-indicator"></span>
+                <span>System Status: Online</span>
+            </div>
+            <div class="footer-info update-time">
+                Last Updated: <span id="lastUpdate">--:--</span>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ===== 時計機能 =====
+        function updateClock() {
+            const now = new Date();
+            const pad = (n) => String(n).padStart(2, '0');
+            
+            // 時刻
+            document.getElementById('clock').textContent = 
+                `${pad(now.getHours())}:${pad(now.getMinutes())}:${pad(now.getSeconds())}`;
+            
+            // 日付
+            const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+            document.getElementById('date').textContent = now.toLocaleDateString('en-US', options);
+        }
+
+        setInterval(updateClock, 1000);
+        updateClock();
+
+        // ===== 天気機能 =====
+        function updateWeatherDisplay(data) {
+            document.getElementById('temperature').textContent = `${Math.round(data.temp)}°`;
+            document.getElementById('feelsLike').textContent = `${Math.round(data.feelsLike)}°`;
+            document.getElementById('humidity').textContent = `${data.humidity}%`;
+            document.getElementById('windSpeed').textContent = `${data.windSpeed} m/s`;
+            document.getElementById('pressure').textContent = `${data.pressure} hPa`;
+            document.getElementById('weatherDesc').textContent = data.description;
+            document.getElementById('weatherIcon').textContent = data.icon;
+            
+            // 最終更新時刻
+            const now = new Date();
+            const pad = (n) => String(n).padStart(2, '0');
+            document.getElementById('lastUpdate').textContent = 
+                `${pad(now.getHours())}:${pad(now.getMinutes())}`;
+        }
+
+        // デモデータを表示
+        const demoWeather = {
+            temp: 18,
+            feelsLike: 16,
+            humidity: 65,
+            windSpeed: 3.5,
+            pressure: 1013,
+            description: "Partly Cloudy",
+            icon: "🌤️"
+        };
+
+        updateWeatherDisplay(demoWeather);
+
+        // フルスクリーン対応
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'F11') {
+                e.preventDefault();
+                if (!document.fullscreenElement) {
+                    document.documentElement.requestFullscreen().catch(err => 
+                        console.log(`Error requesting fullscreen: ${err.message}`)
+                    );
+                } else {
+                    document.exitFullscreen();
+                }
+            }
+        });
+    </script>
+</body>
+</html>
