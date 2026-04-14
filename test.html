@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第35回 国家試験対策：鍼灸・柔整 45問マスター</title>
+<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@700&family=IBM+Plex+Mono:wght@300;400;600&family=Noto+Sans+JP:wght@100;300;400;500;700&display=swap" rel="stylesheet">
+<style>
+:root{--w:#FAFAF8;--ink:#0A0A0A;--acc:#1A55A0;--柔整:#D32F2F;--鍼灸:#2E7D32;--共通:#EF6C00;--grid:rgba(10,10,10,0.06);--rule:rgba(10,10,10,0.14);}
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
+html,body{width:100%;height:100%;overflow:hidden;background:var(--w);color:var(--ink);font-family:'Noto Sans JP', sans-serif;}
+
+/* 背景デザイン */
+.bg-grid{position:fixed;inset:0;pointer-events:none;z-index:0;background-image:linear-gradient(var(--grid) 1px,transparent 1px),linear-gradient(90deg,var(--grid) 1px,transparent 1px);background-size:60px 60px;}
+.bg-vignette{position:fixed;inset:0;pointer-events:none;z-index:1;background:radial-gradient(ellipse 80% 70% at 50% 50%,rgba(250,250,248,0.6) 0%,transparent 100%);}
+
+.shell{position:relative;z-index:2;width:100vw;height:100vh;display:flex;flex-direction:column;}
+
+/* ヘッダー修正：ロゴが巨大化しないよう高さを制限 */
+.hd{
+  display:flex;
+  align-items:stretch;
+  justify-content:space-between;
+  height: 120px; /* ヘッダーの高さを固定 */
+  opacity:0;
+  animation:fadeY 0.5s ease forwards;
+  flex-shrink:0;
+  border-bottom:1px solid var(--rule);
+  background:rgba(250,250,248,0.8);
+  backdrop-filter:blur(10px);
+}
+.hd-left{display:flex;align-items:center;padding:0 40px;flex:1;}
+
+/* ロゴのサイズを固定的に調整 */
+.logo-block{
+  display:flex;
+  align-items:center;
+  gap:15px;
+  padding-right:30px;
+  border-right:1px solid var(--rule);
+  margin-right:30px;
+}
+.logo-main{
+  font-family:"Noto Sans JP",sans-serif;
+  font-weight:700;
+  font-size:1.8rem; /* サイズを固定 */
+  letter-spacing:0.1em;
+  color:var(--ink);
+  white-space:nowrap;
+  line-height:1;
+}
+.logo-sub{
+  font-family:"Oswald",sans-serif;
+  font-size:0.9rem;
+  letter-spacing:0.2em;
+  color:var(--acc);
+}
+
+.hd-eyebrow{font-family:"IBM Plex Mono",monospace;font-weight:300;font-size:0.8rem;letter-spacing:0.2em;color:var(--acc);display:flex;align-items:center;gap:8px;margin-bottom:4px;}
+.pulse{width:6px;height:6px;border-radius:50%;background:var(--acc);animation:blink 1.2s ease-in-out infinite;}
+@keyframes blink{0%,100%{opacity:1;transform:scale(1);}50%{opacity:0.2;transform:scale(0.5);}}
+.hd-title{font-family:"Oswald",sans-serif;font-weight:700;font-size:1.6rem;color:var(--ink);line-height:1.2;}
+
+.hd-right{display:flex;flex-direction:column;align-items:flex-end;justify-content:center;padding:0 40px;border-left:1px solid var(--rule);min-width:220px;}
+.live-clock{font-family:"IBM Plex Mono",monospace;font-weight:600;font-size:2.8rem;color:var(--acc);line-height:1;}
+
+/* プログレスバー */
+.progress-bar-wrap{height:6px;background:var(--rule);flex-shrink:0;}
+.progress-bar-fill{height:100%;background:var(--acc);width:0%;transition:width 0s linear;}
+
+/* メインコンテンツ（クイズエリア）を広く取る */
+.main-content{flex:1;display:flex;flex-direction:column;justify-content:center;padding:0 8%;opacity:0;animation:fadeY 0.6s ease forwards 0.2s;}
+
+.question-wrap{margin-bottom:40px;}
+.meta-label{font-family:"IBM Plex Mono",monospace;font-weight:600;font-size:1rem;letter-spacing:0.4em;color:var(--acc);text-transform:uppercase;margin-bottom:15px;}
+.question-text{font-size:clamp(1.8rem, 3.5vw, 4rem);font-weight:500;line-height:1.4;color:var(--ink);}
+
+.answer-box{
+  background:white;border-left:15px solid var(--acc);padding:40px 60px;
+  opacity:0;transform:translateY(40px);transition:all 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow:0 30px 80px rgba(0,0,0,0.08);
+}
+.answer-box.show{opacity:1;transform:translateY(0);}
+.answer-header{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:15px;}
+.answer-name{font-size:clamp(2.5rem, 4.5vw, 5.5rem);font-weight:700;color:var(--acc);line-height:1.1;}
+.category-badge{padding:6px 14px;border-radius:4px;font-size:1rem;font-weight:700;color:white;white-space:nowrap;}
+.answer-desc{font-size:1.6rem;color:rgba(10,10,10,0.7);line-height:1.7;font-weight:300;max-width:1100px;}
+
+.tag-container{margin-top:25px;display:flex;gap:12px;flex-wrap:wrap;}
+.effect-tag{background:rgba(10,10,10,0.05);padding:6px 16px;border-radius:6px;font-size:1.1rem;color:var(--ink);font-weight:600;}
+
+.card-fade{transition:opacity 0.4s ease;}
+.card-fade.out{opacity:0;}
+@keyframes fadeY{from{opacity:0;transform:translateY(30px);}to{opacity:1;transform:translateY(0);}}
+</style>
+</head>
+<body>
+<div class="bg-grid"></div>
+<div class="bg-vignette"></div>
+<div class="shell">
+  <header class="hd">
+    <div class="hd-left">
+      <div class="logo-block">
+        <div><div class="logo-main">日本医専</div><div class="logo-sub">NIHON ISEN</div></div>
+      </div>
+      <div>
+        <div class="hd-eyebrow"><span class="pulse"></span>EXAM PREP 45 QUESTIONS</div>
+        <div class="hd-title">鍼灸師・柔道整復師 国家試験対策</div>
+      </div>
+    </div>
+    <div class="hd-right"><div class="live-clock" id="live-clock">00:00:00</div></div>
+  </header>
+  <div class="progress-bar-wrap"><div class="progress-bar-fill" id="progress-bar"></div></div>
+  
+  <main class="main-content card-fade" id="quiz-container">
+    <div class="question-wrap">
+      <div class="meta-label">QUESTION</div>
+      <div class="question-text" id="q-text">—</div>
+    </div>
+
+    <div id="answer-area" class="answer-box">
+      <div class="meta-label">ANSWER</div>
+      <div class="answer-header">
+        <div class="answer-name" id="a-name">—</div>
+        <div id="category-badge" class="category-badge">—</div>
+      </div>
+      <div class="answer-desc" id="a-desc">—</div>
+      <div class="tag-container" id="a-tags"></div>
+    </div>
+  </main>
+</div>
+
+<script>
+/* JS部分は変更なし */
+function updateClock(){
+  const now=new Date();
+  const f=n=>String(n).padStart(2,'0');
+  document.getElementById('live-clock').textContent=`${f(now.getHours())}:${f(now.getMinutes())}:${f(now.getSeconds())}`;
+}
+setInterval(updateClock,1000);updateClock();
+
+const QUIZ_DATA = [
+  // --- 鍼灸系 (15問) ---
+  { q: "第2中手骨橈側の中点に取穴する経穴は？", a: "合谷 (LI4)", type: "鍼灸", cat: "手の陽明大腸経", desc: "大腸経の原穴。面目の疾患に用いる四総穴の一つ。", tags: ["原穴", "四総穴"] },
+  { q: "足の陽明胃経の合土穴で、下合穴（胃）は？", a: "足三里 (ST36)", type: "鍼灸", cat: "足の陽明胃経", desc: "犢鼻から下3寸。腹部の疾患に対応する四総穴。", tags: ["合土穴", "下合穴"] },
+  { q: "第3胸椎棘突起下外方1.5寸に位置する経穴は？", a: "肺兪 (BL13)", type: "鍼灸", cat: "足の太陽膀胱経", desc: "肺の背部兪穴。T3の高さ。", tags: ["背部兪穴", "T3"] },
+  { q: "手根背側横紋の上方2寸、橈骨と尺骨の骨間に位置する経穴は？", a: "外関 (TE5)", type: "鍼灸", cat: "手の少陽三焦経", desc: "三焦経の絡穴。八脈交会穴の一つ。", tags: ["絡穴", "八脈交会穴"] },
+  { q: "足の太陰脾経の絡穴で、公孫の部位は？", a: "第1中足骨底部遠位の前内側", type: "鍼灸", cat: "足の太陰脾経", desc: "脾経の絡穴。八脈交会穴で衝脈に通じる。", tags: ["絡穴", "公孫"] },
+  { q: "神門（心経）の取穴部位は？", a: "豆状骨近位縁の橈側手根屈筋腱橈側", type: "鍼灸", cat: "手の少陰心経", desc: "心経の原穴・輸土穴。精神疾患によく使われる。", tags: ["原穴", "心経"] },
+  { q: "内くるぶしの最高点から上3寸、脛骨内側縁の後は？", a: "三陰交 (SP6)", type: "鍼灸", cat: "足の太陰脾経", desc: "太陰・少陰・厥陰の三陰が交わる場所。", tags: ["重要穴", "婦人科疾患"] },
+  { q: "崑崙（膀胱経）の部位は？", a: "外果最高点とアキレス腱の間の陥凹部", type: "鍼灸", cat: "足の太陽膀胱経", desc: "膀胱経の経火穴。腰痛の特効穴。", tags: ["経火穴", "膀胱経"] },
+  { q: "経穴「太衝」の所属経脈は？", a: "足の厥陰肝経", type: "鍼灸", cat: "足の厥陰肝経", desc: "肝経の原穴。第1・第2中足骨底間。", tags: ["原穴", "肝経"] },
+  { q: "小腸の腹結（募穴）はどこか？", a: "関元 (CV4)", type: "鍼灸", cat: "任脈", desc: "臍下3寸。小腸の募穴。", tags: ["募穴", "任脈"] },
+  { q: "心包の募穴はどこか？", a: "膻中 (CV17)", type: "鍼灸", cat: "任脈", desc: "両乳頭を結ぶ線の中点（第4肋間）。", tags: ["募穴", "気会"] },
+  { q: "大腸経の募穴である「天枢」の部位は？", a: "臍の外方2寸", type: "鍼灸", cat: "足の陽明胃経", desc: "胃経に所属するが、大腸の募穴である。", tags: ["募穴", "天枢"] },
+  { q: "五行穴において、陽経の「合」に対応する五行は？", a: "土", type: "鍼灸", cat: "経絡経穴総論", desc: "陰経は木・火・土・金・水。陽経は金・水・木・火・土。", tags: ["五行穴", "土穴"] },
+  { q: "奇経のうち、督脈が通じる八脈交会穴は？", a: "後渓 (SI3)", type: "鍼灸", cat: "手の太陽小腸経", desc: "申脈（膀胱経）と組み合わせて使われる。", tags: ["八脈交会穴", "督脈"] },
+  { q: "四総穴において「腰背は◯◯に留む」の◯◯は？", a: "委中 (BL40)", type: "鍼灸", cat: "足の太陽膀胱経", desc: "膝窩横紋の中点。腰背部の症状に用いる。", tags: ["四総穴", "委中"] },
+
+  // --- 柔整系 (15問) ---
+  { q: "橈骨遠位端部で遠位骨片が背側・橈側に転位する骨折は？", a: "コーレス骨折", type: "柔整", cat: "柔道整復学：骨折", desc: "フォーク状変形が特徴。手をついて倒れた際に発生。", tags: ["フォーク状変形", "必修"] },
+  { q: "鎖骨骨折の最も頻度の高い好発部位は？", a: "中・外1/3境界部", type: "柔整", cat: "柔道整復学：骨折", desc: "解剖学的弱点。遠位骨片は自重で下方へ転位する。", tags: ["鎖骨", "好発部位"] },
+  { q: "肩関節前方脱臼で、骨頭が烏口突起の下にあるものは？", a: "烏口下脱臼", type: "柔整", cat: "柔道整復学：脱臼", desc: "肩関節脱臼の中で最も多い。弾発性固定を認める。", tags: ["肩関節", "前方脱臼"] },
+  { q: "骨折の固有症状の3つは？", a: "異常可動性・軋轢音・転位と変形", type: "柔整", cat: "柔整総論", desc: "これらが一つでもあれば骨折と断定できる絶対的症状。", tags: ["固有症状", "必修"] },
+  { q: "肘内障の発生機予は、前腕のどのような強制か？", a: "回外位での牽引（または回内位）", type: "柔整", cat: "柔整各論：小児", desc: "環状靭帯が橈骨頭から逸脱する。幼児に多発。", tags: ["肘内障", "幼児外傷"] },
+  { q: "上腕骨顆上骨折で最も注意すべき合併症は？", a: "フォルクマン拘縮", type: "柔整", cat: "柔道整復学：骨折", desc: "コンパートメント症候群。5P症状を確認すること。", tags: ["フォルクマン", "合併症"] },
+  { q: "膝関節で、前方引き出しテストが陽性の場合は？", a: "前十字靭帯 (ACL) 損傷", type: "柔整", cat: "柔整各論：膝", desc: "スポーツ外傷。内旋位で損傷しやすい。", tags: ["ACL", "テスト"] },
+  { q: "アキレス腱断裂の診断に用いられるテストは？", a: "トムセンテスト", type: "柔整", cat: "柔整各論：足", desc: "下腿三頭筋を把握しても足関節が底屈しない。", tags: ["アキレス腱", "テスト"] },
+  { q: "肋骨骨折が最も発生しやすい部位は？", a: "第4〜8肋骨（角部）", type: "柔整", cat: "柔整各論：体幹", desc: "側胸部の骨折が多い。肺損傷などの合併症に注意。", tags: ["肋骨", "好発部位"] },
+  { q: "小児の骨折で、骨膜が厚く不全骨折となるものを何という？", a: "若木骨折", type: "柔整", cat: "柔整総論", desc: "竹を折ったような形態。自家矯正が強い。", tags: ["若木骨折", "小児"] },
+  { q: "手の舟状骨骨折の診断で見逃しやすい部位は？", a: "スナッフボックスの圧痛", type: "柔整", cat: "柔整各論：手", desc: "血行不良により偽関節になりやすい骨折の一つ。", tags: ["舟状骨", "偽関節"] },
+  { q: "骨折の治癒過程で、最初に形成されるのは？", a: "仮骨 (かこつ)", type: "柔整", cat: "柔整総論", desc: "炎症期を経て、軟部仮骨、硬性仮骨へと進む。", tags: ["治癒機転", "仮骨"] },
+  { q: "股関節脱臼の中で最も頻度が高いのは？", a: "後方脱臼", type: "柔整", cat: "柔整各論：股関節", desc: "ダッシュボード損傷などで発生。患肢は内旋・内転位。", tags: ["股関節", "後方脱臼"] },
+  { q: "上腕骨外顆骨折の後に起こる遅発性合併症は？", a: "遅発性尺骨神経麻痺", type: "柔整", cat: "柔整各論：肘", desc: "外反肘（がいはんちゅう）による神経の牽引。", tags: ["外反肘", "麻痺"] },
+  { q: "骨癒合が最も速い（日数が短い）部位は？", a: "指骨 (2週〜)", type: "柔整", cat: "柔整総論：グルトの癒合日数", desc: "指は2週、肋骨は3週、鎖骨は4週が目安。", tags: ["グルト", "癒合日数"] },
+
+  // --- 共通科目 (15問) ---
+  { q: "成人の脊柱において、生理的に「前弯」している部位は？", a: "頸椎・腰椎", type: "共通", cat: "解剖学：骨格", desc: "胸椎と仙骨は後弯。赤ちゃんの成長とともに前弯が形成される。", tags: ["前弯", "脊柱"] },
+  { q: "膵臓のβ細胞から分泌されるホルモンは？", a: "インスリン", type: "共通", cat: "生理学：ホルモン", desc: "血糖値を下げる唯一のホルモン。α細胞はグルカゴン。", tags: ["血糖", "膵臓"] },
+  { q: "脳神経の第V神経は何？", a: "三叉神経", type: "共通", cat: "解剖学：神経", desc: "感覚（顔面）と運動（咀嚼筋）を司る混合神経。", tags: ["脳神経", "三叉"] },
+  { q: "血液の成分で、止血の役割を担うのは？", a: "血小板", type: "共通", cat: "生理学：血液", desc: "凝集することで一次止血を行う。", tags: ["止血", "血小板"] },
+  { q: "成人の安静時の正常な呼吸数は？", a: "12〜20回 / 分", type: "共通", cat: "生理学：呼吸", desc: "10回以下は徐呼吸、25回以上は多呼吸とされる。", tags: ["呼吸数", "バイタル"] },
+  { q: "大腿四頭筋のうち、唯一股関節をまたぐ二関節筋は？", a: "大腿直筋", type: "共通", cat: "解剖学：筋", desc: "股関節の屈曲と膝関節の伸展に関与する。", tags: ["二関節筋", "大腿四頭筋"] },
+  { q: "心臓の弁で、左心房と左心室の間にあるのは？", a: "僧帽弁（二尖弁）", type: "共通", cat: "解剖学：循環器", desc: "右側は三尖弁。圧力が高い左室の逆流を防ぐ。", tags: ["僧帽弁", "左心系"] },
+  { q: "体温調節の中枢がある部位は？", a: "間脳視床下部", type: "共通", cat: "生理学：体温", desc: "自律神経や内分泌の統合中枢でもある。", tags: ["中枢", "視床下部"] },
+  { q: "最も強い抗原提示能力を持つ細胞は？", a: "樹状細胞", type: "共通", cat: "免疫学", desc: "マクロファージも抗原提示を行うが、樹状細胞が最強。", tags: ["免疫", "樹状細胞"] },
+  { q: "1gあたりのエネルギー発生量が最も多い栄養素は？", a: "脂質 (9kcal/g)", type: "共通", cat: "生理学：代謝", desc: "糖質とタンパク質は4kcal/g。", tags: ["カロリー", "脂質"] },
+  { q: "ATP（アデノシン三リン酸）に含まれる糖は？", a: "リボース", type: "共通", cat: "生理学：代謝", desc: "アデニン＋リボース＋3つのリン酸。", tags: ["ATP", "生化学"] },
+  { q: "悪性腫瘍の3大特徴は？", a: "自律性増殖・浸潤と転移・悪液質", type: "共通", cat: "病理学", desc: "周囲に広がり（浸潤）、遠くに飛ぶ（転移）。", tags: ["癌", "病理"] },
+  { q: "肩関節を「外転」させる主動作筋は？（2つ）", a: "三角筋・棘上筋", type: "共通", cat: "運動学", desc: "棘上筋が始動を助け、三角筋が強く持ち上げる。", tags: ["肩関節", "外転"] },
+  { q: "炎症の5大徴候は？", a: "発赤・腫脹・熱感・疼痛・機能障害", type: "共通", cat: "病理学", desc: "セルサスの4徴候にガレノスが機能障害を加えた。", tags: ["炎症", "病理"] },
+  { q: "排尿を促進する自律神経は？", a: "副交感神経（骨盤神経）", type: "共通", cat: "生理学：排尿", desc: "「出る時はリラックス（副交感）」と覚えよう。", tags: ["排尿", "自律神経"] }
+];
+
+let idx = 0;
+const INTERVAL = 14000; 
+
+function render(n) {
+  const d = QUIZ_DATA[n];
+  const container = document.getElementById('quiz-container');
+  const ansArea = document.getElementById('answer-area');
+  const badge = document.getElementById('category-badge');
+  const bar = document.getElementById('progress-bar');
+  
+  container.classList.add('out');
+  ansArea.classList.remove('show');
+
+  const typeColors = { "鍼灸": "var(--鍼灸)", "柔整": "var(--柔整)", "共通": "var(--共通)" };
+  const themeColor = typeColors[d.type] || "var(--acc)";
+
+  setTimeout(() => {
+    document.getElementById('q-text').textContent = d.q;
+    document.getElementById('a-name').textContent = d.a;
+    document.getElementById('a-name').style.color = themeColor;
+    
+    badge.textContent = `${d.type} | ${d.cat}`;
+    badge.style.backgroundColor = themeColor;
+    
+    document.getElementById('a-desc').textContent = d.desc;
+    document.getElementById('a-tags').innerHTML = d.tags.map(t=>`<span class="effect-tag">${t}</span>`).join('');
+    
+    bar.style.backgroundColor = themeColor;
+    container.classList.remove('out');
+
+    bar.style.transition = 'none'; bar.style.width = '0%';
+    setTimeout(() => {
+      bar.style.transition = `width ${INTERVAL}ms linear`;
+      bar.style.width = '100%';
+    }, 50);
+
+    setTimeout(() => {
+      if (document.getElementById('q-text').textContent === d.q) {
+        ansArea.classList.add('show');
+      }
+    }, INTERVAL / 2);
+  }, 400);
+}
+
+QUIZ_DATA.sort(() => Math.random() - 0.5);
+render(0);
+
+setInterval(() => {
+  idx = (idx + 1) % QUIZ_DATA.length;
+  render(idx);
+}, INTERVAL);
+</script>
+</body>
+</html>
