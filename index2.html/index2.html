@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>日本医専 - 最新ニュース</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            width: 1920px;
+            height: 1080px;
+            background: #f8f8f8;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Hiragino Sans', 'Noto Sans JP', sans-serif;
+            color: #2c2c2c;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .header {
+            padding: 25px 50px;
+            background: #fff;
+            border-bottom: 1px solid #e0e0e0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 25px;
+            flex: 1;
+        }
+
+        .logo-img {
+            height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .logo-img img {
+            height: 100%;
+            width: auto;
+            max-width: 300px;
+            object-fit: contain;
+        }
+
+        .header-right {
+            text-align: right;
+        }
+
+        .header-time {
+            font-size: 32px;
+            font-weight: 600;
+            color: #2c2c2c;
+            font-family: 'Courier New', monospace;
+        }
+
+        .header-status {
+            font-size: 12px;
+            color: #888;
+            margin-top: 6px;
+            letter-spacing: 0.3px;
+        }
+
+        .container {
+            flex: 1;
+            padding: 40px 50px;
+            overflow: hidden;
+        }
+
+        .featured-news {
+            width: 100%;
+            height: 100%;
+            background: #fff;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .featured-image {
+            width: 100%;
+            height: 55%;
+            background: #fff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #ccc;
+            font-size: 14px;
+            overflow: auto;
+            position: relative;
+        }
+
+        .featured-image img {
+            max-width: 100%;
+            max-height: 100%;
+            width: auto;
+            height: auto;
+            object-fit: contain;
+            display: block;
+        }
+
+        .featured-content {
+            flex: 1;
+            padding: 50px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .featured-meta {
+            font-size: 13px;
+            color: #888;
+            margin-bottom: 15px;
+            display: flex;
+            gap: 20px;
+            letter-spacing: 0.3px;
+        }
+
+        .featured-title {
+            font-size: 40px;
+            font-weight: 600;
+            line-height: 1.4;
+            color: #2c2c2c;
+            margin-bottom: 25px;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        .featured-text {
+            font-size: 18px;
+            color: #666;
+            line-height: 1.8;
+            display: -webkit-box;
+            -webkit-line-clamp: 4;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        .loading {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            font-size: 14px;
+            color: #888;
+            padding: 40px;
+        }
+
+        .spinner {
+            width: 16px;
+            height: 16px;
+            border: 2px solid #e0e0e0;
+            border-top-color: #999;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="header-left">
+            <div class="logo-img">
+                <img src="./logo.jpg" alt="日本医専ロゴ">
+            </div>
+        </div>
+        <div class="header-right">
+            <div class="header-time" id="currentTime">--:--:--</div>
+            <div class="header-status" id="statusMessage">接続中...</div>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="featured-news" id="featuredNews">
+            <div class="featured-image"></div>
+            <div class="featured-content">
+                <div class="loading" style="margin: 0;">
+                    <div class="spinner"></div>
+                    <span>データを読み込み中...</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_ENDPOINT = '/api/nihonisen-news';
+
+        let allNews = [];
+        let currentFeaturedIndex = 0;
+        let autoRotateTimer = null;
+        const MAX_NEWS_ITEMS = 3; // 最新3件のみ
+
+        async function fetchNews() {
+            try {
+                const response = await fetch(API_ENDPOINT);
+                if (response.ok) {
+                    const data = await response.json();
+                    if (data.news && data.news.length > 0) {
+                        allNews = data.news.sort((a, b) => 
+                            new Date(b.date_iso) - new Date(a.date_iso)
+                        ).slice(0, MAX_NEWS_ITEMS); // 最新3件に制限
+                        updateStatusMessage(`✓ データ取得成功（${allNews.length}件）`);
+                        renderUI();
+                        return;
+                    }
+                }
+            } catch (error) {
+                console.log('API接続失敗:', error.message);
+            }
+
+            // フォールバック: ダミーデータ
+            console.log('');
+            allNews = getSampleNews().slice(0, MAX_NEWS_ITEMS);
+            updateStatusMessage('');
+            renderUI();
+        }
+
+        function getSampleNews() {
+            return [
+                {
+                    id: 0,
+                    title: '【4/18(土)オープンキャンパス開催】実技体験付きオープンキャンパス',
+                    date: '2026.04.13',
+                    date_iso: new Date(2026, 3, 13).toISOString(),
+                    category: 'ニュース',
+                    url: 'https://www.nihonisen.ac.jp/topics/?p=48433',
+                    image_url: 'https://www.nihonisen.ac.jp/wp/wp-content/uploads/2026/04/38f6fba3b8115c17208ba92a3d14b6e7.jpg',
+                    description: '高校生向けの実技体験付きオープンキャンパスを開催いたします。日本鍼灸と中国鍼灸の両手技を体験できます。日本医専の学び環境を実際に感じてください。'
+                },
+                {
+                    id: 1,
+                    title: '288名が医療の道へ【2026年度入学式】',
+                    date: '2026.04.08',
+                    date_iso: new Date(2026, 3, 8).toISOString(),
+                    category: 'ニュース',
+                    url: 'https://www.nihonisen.ac.jp/topics/?p=48379',
+                    image_url: 'https://www.nihonisen.ac.jp/wp/wp-content/uploads/2026/04/b6682504de4cf09f2e97ac3ecf79a071.png',
+                    description: '2026年度の入学式が開催されました。288名の新入生が柔道整復師・鍼灸師への第一歩を踏み出しました。充実した学生生活がここから始まります。'
+                },
+                {
+                    id: 2,
+                    title: '【4/12(日)オープンキャンパス開催】統合医療で不調を改善',
+                    date: '2026.04.01',
+                    date_iso: new Date(2026, 3, 1).toISOString(),
+                    category: 'ニュース',
+                    url: 'https://www.nihonisen.ac.jp/topics/?p=48346',
+                    image_url: 'https://www.nihonisen.ac.jp/wp/wp-content/uploads/2026/04/117326b80c7db98b9bf7ff47f62248b1.jpg',
+                    description: '統合医療で不調を改善するテーマでオープンキャンパスを開催します。婦人鍼灸と美ボディ鍼灸についても学べます。実際の授業を体験できるチャンスです。'
+                }
+            ];
+        }
+
+        function renderUI() {
+            renderFeaturedNews();
+        }
+
+        function renderFeaturedNews() {
+            if (allNews.length === 0) return;
+
+            const news = allNews[currentFeaturedIndex];
+            const featured = document.getElementById('featuredNews');
+
+            featured.innerHTML = `
+                <div class="featured-image">
+                    ${news.image_url ? `<img src="${news.image_url}" alt="ニュース画像" loading="lazy">` : '<span>No Image</span>'}
+                </div>
+                <div class="featured-content">
+                    <div>
+                        <div class="featured-meta">
+                            <span>${news.date}</span>
+                            <span>/</span>
+                            <span>${news.category}</span>
+                        </div>
+                        <div class="featured-title">${escapeHtml(news.title)}</div>
+                        <div class="featured-text">${escapeHtml(news.description || 'ニュース詳細についてはホームページをご覧ください。')}</div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function updateStatusMessage(msg) {
+            const statusEl = document.getElementById('statusMessage');
+            if (statusEl) {
+                statusEl.textContent = msg;
+            }
+        }
+
+        function updateTime() {
+            const now = new Date();
+            const timeStr = now.toLocaleTimeString('ja-JP', { 
+                hour: '2-digit', 
+                minute: '2-digit',
+                second: '2-digit'
+            });
+            document.getElementById('currentTime').textContent = timeStr;
+        }
+
+        function autoRotateFeatured() {
+            if (allNews.length > 1) {
+                currentFeaturedIndex = (currentFeaturedIndex + 1) % allNews.length;
+                renderUI();
+            }
+        }
+
+        function escapeHtml(text) {
+            const map = {
+                '&': '&amp;',
+                '<': '&lt;',
+                '>': '&gt;',
+                '"': '&quot;',
+                "'": '&#039;'
+            };
+            return text.replace(/[&<>"']/g, m => map[m]);
+        }
+
+        // 初期化
+        updateTime();
+        setInterval(updateTime, 1000);
+        fetchNews();
+        setInterval(fetchNews, 30000);
+
+        // 自動切り替え（10秒ごと）
+        autoRotateTimer = setInterval(autoRotateFeatured, 10000);
+    </script>
+</body>
+</html>
