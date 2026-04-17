@@ -1,0 +1,741 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Instagram Signage Display - 日本医専</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            width: 1920px;
+            height: 1080px;
+            background: linear-gradient(135deg, #0f0f0f 0%, #1a1a1a 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            overflow: hidden;
+        }
+
+        .container {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 40px;
+            background: linear-gradient(
+                135deg,
+                rgba(15, 15, 15, 0.95) 0%,
+                rgba(26, 26, 26, 0.95) 50%,
+                rgba(15, 15, 15, 0.95) 100%
+            );
+        }
+
+        .header {
+            position: absolute;
+            top: 20px;
+            left: 40px;
+            z-index: 10;
+        }
+
+        .header-title {
+            font-size: 24px;
+            font-weight: 700;
+            color: #fff;
+            letter-spacing: -0.5px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .header-title svg {
+            width: 28px;
+            height: 28px;
+            filter: drop-shadow(0 2px 8px rgba(255, 255, 255, 0.1));
+        }
+
+        .status-indicator {
+            position: absolute;
+            top: 30px;
+            right: 40px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 12px;
+            color: rgba(255, 255, 255, 0.6);
+            z-index: 10;
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background-color: #00ff00;
+            animation: pulse 2s infinite;
+            box-shadow: 0 0 8px rgba(0, 255, 0, 0.6);
+        }
+
+        @keyframes pulse {
+            0%, 100% {
+                opacity: 1;
+            }
+            50% {
+                opacity: 0.5;
+            }
+        }
+
+        .gallery {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 30px;
+            width: 100%;
+            max-width: 1840px;
+            height: auto;
+            margin-top: 20px;
+        }
+
+        .video-card {
+            position: relative;
+            width: 100%;
+            aspect-ratio: 9 / 16;
+            border-radius: 16px;
+            overflow: hidden;
+            background: #000;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.8), 0 0 1px rgba(255, 255, 255, 0.1);
+            animation: fadeInUp 0.8s ease-out forwards;
+            animation-delay: calc(var(--index) * 0.15s);
+            transition: transform 0.3s ease-out, box-shadow 0.3s ease-out;
+            opacity: 0;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .video-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 30px 80px rgba(0, 0, 0, 0.9), 0 0 2px rgba(255, 255, 255, 0.2);
+        }
+
+        .video-card iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+            display: block;
+        }
+
+        .video-card.loading {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(90deg, #222 25%, #333 50%, #222 75%);
+            background-size: 200% 100%;
+            animation: shimmer 2s infinite;
+        }
+
+        @keyframes shimmer {
+            0% {
+                background-position: 200% 0;
+            }
+            100% {
+                background-position: -200% 0;
+            }
+        }
+
+        .loading-spinner {
+            width: 40px;
+            height: 40px;
+            border: 3px solid rgba(255, 255, 255, 0.1);
+            border-top-color: #fff;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        .footer {
+            position: absolute;
+            bottom: 20px;
+            right: 40px;
+            font-size: 12px;
+            color: rgba(255, 255, 255, 0.4);
+            text-align: right;
+            z-index: 10;
+        }
+
+        .footer-time {
+            font-size: 14px;
+            font-weight: 500;
+            color: rgba(255, 255, 255, 0.6);
+            margin-bottom: 4px;
+            font-family: 'Courier New', monospace;
+        }
+
+        /* サイネージ向け最適化 */
+        @media (prefers-reduced-motion: no-preference) {
+            body {
+                animation: subtleBackgroundShift 30s ease-in-out infinite;
+            }
+        }
+
+        @keyframes subtleBackgroundShift {
+            0%, 100% {
+                background: linear-gradient(135deg, #0f0f0f 0%, #1a1a1a 100%);
+            }
+            50% {
+                background: linear-gradient(135deg, #1a1a1a 0%, #0f0f0f 100%);
+            }
+        }
+
+        /* 全体レイアウト微調整 */
+        .gallery {
+            padding: 0 40px;
+            max-width: calc(100% - 80px);
+        }
+
+        .video-card {
+            --index: 0;
+        }
+
+        .video-card:nth-child(1) {
+            --index: 0;
+        }
+
+        .video-card:nth-child(2) {
+            --index: 1;
+        }
+
+        .video-card:nth-child(3) {
+            --index: 2;
+        }
+
+        /* プレフォーマットテキスト（デバッグ用） */
+        .debug-info {
+            position: fixed;
+            bottom: 40px;
+            left: 40px;
+            background: rgba(0, 0, 0, 0.7);
+            color: #0f0;
+            padding: 10px 15px;
+            border-radius: 6px;
+            font-size: 11px;
+            font-family: 'Courier New', monospace;
+            max-width: 300px;
+            word-break: break-all;
+            display: none;
+            z-index: 5;
+        }
+
+        .debug-info.active {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="header-title">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect>
+                <path d="M16 11.37A4 4 0 1 1 12.63 8"></path>
+            </svg>
+            <span>日本医線 - Latest Posts</span>
+        </div>
+    </div>
+
+    <div class="status-indicator">
+        <div class="status-dot"></div>
+        <span>Live</span>
+    </div>
+
+    <div class="container">
+        <div class="gallery" id="gallery">
+            <!-- iframeはJavaScriptで動的生成 -->
+        </div>
+    </div>
+
+    <div class="footer">
+        <div class="footer-time" id="current-time"></div>
+        <div>Automated Instagram Feed</div>
+    </div>
+
+    <div class="debug-info" id="debug-info"></div>
+
+    <script>
+        /**
+         * Instagram Signage Display System - 自動取得版
+         * 
+         * 機能：
+         * - Instagramリール最新3件を自動取得
+         * - 1920×1080フルHD対応
+         * - 9:16縦動画を3本横並び
+         * - 自動再生・ループ・ミュート
+         * - GitHub Pages対応（静的ホスティング）
+         * - 高速キャッシング（IndexedDB使用）
+         */
+
+        // ============================================
+        // 設定セクション
+        // ============================================
+        
+        const CONFIG = {
+            // ターゲットInstagramアカウント
+            instagramUsername: 'nihonisen',
+            
+            // 複数のAPIサーバーを試す（フェイルオーバー対応）
+            // 以下をCloudflare Workerの実際のURLに置き換えてください
+            apiEndpoints: [
+                'https://instagram-api.ak-moriyama.workers.dev/reels',  // Cloudflare Workers版（推奨・最速）
+                // 'https://[your-project].vercel.app/api/reels', // Vercel版（バックアップ）
+            ],
+            
+            // キャッシュ設定
+            cacheKey: 'instagram_reels_cache',
+            cacheExpireMs: 3600000, // 1時間ごと自動更新
+            
+            // 更新チェック間隔（5分ごと）
+            checkUpdateInterval: 300000, // 5分
+            
+            // デバッグモード
+            debug: false, // URLの最後に ?debug=true を付けると有効化
+        };
+
+        // ============================================
+        // クラス定義
+        // ============================================
+
+        // ============================================
+        // キャッシュ管理クラス
+        // ============================================
+
+        class CacheManager {
+            constructor(key, expirationMs) {
+                this.key = key;
+                this.expirationMs = expirationMs;
+                this.db = null;
+                this.init();
+            }
+
+            async init() {
+                // IndexedDB 初期化（高速キャッシュ）
+                return new Promise((resolve) => {
+                    const request = indexedDB.open('InstagramSignage', 1);
+                    
+                    request.onerror = () => resolve(null);
+                    request.onsuccess = () => {
+                        this.db = request.result;
+                        resolve(this.db);
+                    };
+                    
+                    request.onupgradeneeded = (e) => {
+                        const db = e.target.result;
+                        if (!db.objectStoreNames.contains('reels')) {
+                            db.createObjectStore('reels', { keyPath: 'key' });
+                        }
+                    };
+                });
+            }
+
+            async get() {
+                // IndexedDB から取得
+                if (this.db) {
+                    return new Promise((resolve) => {
+                        const tx = this.db.transaction('reels', 'readonly');
+                        const store = tx.objectStore('reels');
+                        const request = store.get(this.key);
+                        
+                        request.onsuccess = () => {
+                            const data = request.result;
+                            if (data && Date.now() - data.timestamp < this.expirationMs) {
+                                resolve(data.value);
+                            } else {
+                                resolve(null);
+                            }
+                        };
+                    });
+                }
+                
+                // フォールバック: LocalStorage
+                const cached = localStorage.getItem(this.key);
+                if (cached) {
+                    const data = JSON.parse(cached);
+                    if (Date.now() - data.timestamp < this.expirationMs) {
+                        return data.value;
+                    }
+                }
+                
+                return null;
+            }
+
+            async set(value) {
+                const data = {
+                    key: this.key,
+                    value: value,
+                    timestamp: Date.now(),
+                };
+
+                // IndexedDB に保存
+                if (this.db) {
+                    return new Promise((resolve) => {
+                        const tx = this.db.transaction('reels', 'readwrite');
+                        const store = tx.objectStore('reels');
+                        store.put(data);
+                        resolve(true);
+                    });
+                }
+
+                // フォールバック: LocalStorage
+                localStorage.setItem(this.key, JSON.stringify(data));
+                return true;
+            }
+
+            async clear() {
+                if (this.db) {
+                    return new Promise((resolve) => {
+                        const tx = this.db.transaction('reels', 'readwrite');
+                        const store = tx.objectStore('reels');
+                        store.delete(this.key);
+                        resolve(true);
+                    });
+                }
+                localStorage.removeItem(this.key);
+                return true;
+            }
+        }
+
+        // ============================================
+        // クラス定義
+        // ============================================
+
+        class InstagramSignage {
+            constructor(config) {
+                this.config = config;
+                this.gallery = document.getElementById('gallery');
+                this.debugInfo = document.getElementById('debug-info');
+                this.currentTimeEl = document.getElementById('current-time');
+                this.statusDot = document.querySelector('.status-dot');
+                this.posts = [];
+                this.isLoading = false;
+                this.cache = new CacheManager(config.cacheKey, config.cacheExpireMs);
+                this.init();
+            }
+
+            async init() {
+                // URLパラメータからデバッグモードを確認
+                const params = new URLSearchParams(window.location.search);
+                this.config.debug = params.has('debug') || this.config.debug;
+
+                if (this.config.debug) {
+                    this.debugInfo.classList.add('active');
+                }
+
+                this.log('⏳ Initializing Instagram Signage System...');
+                
+                // キャッシュ初期化待機
+                await this.cache.init();
+                this.log('✓ Cache initialized');
+
+                // 初期読み込み
+                await this.loadPosts();
+                this.renderGallery();
+                this.startClock();
+                
+                // 定期チェック（5分ごと）
+                setInterval(() => this.checkAndUpdatePosts(), this.config.checkUpdateInterval);
+                
+                this.log('✓ Signage System Ready');
+            }
+
+            /**
+             * Instagram投稿を読み込む（キャッシュ優先）
+             */
+            async loadPosts() {
+                try {
+                    // ステップ1: キャッシュから取得（超高速）
+                    const cached = await this.cache.get();
+                    if (cached && cached.length > 0) {
+                        this.posts = cached;
+                        this.log(`✓ Loaded ${cached.length} posts from cache`);
+                        return;
+                    }
+
+                    // ステップ2: APIから取得
+                    this.isLoading = true;
+                    this.setStatus('loading');
+                    
+                    const posts = await this.fetchFromAPI();
+                    
+                    if (posts && posts.length > 0) {
+                        this.posts = posts;
+                        await this.cache.set(posts);
+                        this.log(`✓ Loaded ${posts.length} posts from API (cached)`);
+                        this.setStatus('online');
+                    } else {
+                        throw new Error('No posts returned from API');
+                    }
+
+                } catch (error) {
+                    this.log(`⚠ Load Error: ${error.message}`);
+                    
+                    // エラー時のフォールバック
+                    const fallback = [
+                        'https://www.instagram.com/reel/C6w4kG3vFTw/',
+                        'https://www.instagram.com/reel/C6sJ2E8v0Nt/',
+                        'https://www.instagram.com/reel/C6n5mL2v9Ow/',
+                    ];
+                    
+                    if (!this.posts || this.posts.length === 0) {
+                        this.posts = fallback;
+                    }
+                    
+                    this.setStatus('offline');
+                    
+                } finally {
+                    this.isLoading = false;
+                }
+            }
+
+            /**
+             * APIから投稿を取得（複数サーバーでフェイルオーバー）
+             */
+            async fetchFromAPI() {
+                const errors = [];
+
+                for (const endpoint of this.config.apiEndpoints) {
+                    try {
+                        this.log(`📡 Fetching from ${endpoint}`);
+                        
+                        const controller = new AbortController();
+                        const timeoutId = setTimeout(() => controller.abort(), 10000); // 10秒タイムアウト
+
+                        const response = await fetch(
+                            `${endpoint}?username=${this.config.instagramUsername}`,
+                            {
+                                method: 'GET',
+                                headers: { 'Accept': 'application/json' },
+                                signal: controller.signal,
+                            }
+                        );
+
+                        clearTimeout(timeoutId);
+
+                        if (!response.ok) {
+                            throw new Error(`HTTP ${response.status}`);
+                        }
+
+                        const data = await response.json();
+
+                        if (data.reels && Array.isArray(data.reels) && data.reels.length > 0) {
+                            this.log(`✓ Successfully fetched from ${endpoint}`);
+                            return data.reels.slice(0, 3);
+                        }
+
+                        throw new Error('Invalid response format');
+
+                    } catch (error) {
+                        this.log(`✗ Failed: ${error.message}`);
+                        errors.push({ endpoint, error: error.message });
+                    }
+                }
+
+                throw new Error(`All APIs failed: ${errors.map(e => e.endpoint).join(', ')}`);
+            }
+
+            /**
+             * 定期的に更新を確認
+             */
+            async checkAndUpdatePosts() {
+                if (this.isLoading) return;
+
+                try {
+                    const posts = await this.fetchFromAPI();
+                    
+                    // 新しい投稿があれば更新
+                    if (posts && posts.length > 0 && JSON.stringify(posts) !== JSON.stringify(this.posts)) {
+                        this.posts = posts;
+                        await this.cache.set(posts);
+                        this.renderGallery();
+                        this.log('🔄 Posts updated');
+                    }
+                    
+                    this.setStatus('online');
+                    
+                } catch (error) {
+                    this.log(`⚠ Update check failed: ${error.message}`);
+                    this.setStatus('offline');
+                }
+            }
+
+            /**
+             * ステータスインジケータを更新
+             */
+            setStatus(status) {
+                if (!this.statusDot) return;
+                
+                switch (status) {
+                    case 'online':
+                        this.statusDot.style.backgroundColor = '#00ff00';
+                        this.statusDot.style.boxShadow = '0 0 8px rgba(0, 255, 0, 0.6)';
+                        break;
+                    case 'offline':
+                        this.statusDot.style.backgroundColor = '#ff4444';
+                        this.statusDot.style.boxShadow = '0 0 8px rgba(255, 68, 68, 0.6)';
+                        break;
+                    case 'loading':
+                        this.statusDot.style.backgroundColor = '#ffaa00';
+                        this.statusDot.style.boxShadow = '0 0 8px rgba(255, 170, 0, 0.6)';
+                        break;
+                }
+            }
+
+            /**
+             * ギャラリーをレンダリング
+             */
+            renderGallery() {
+                this.gallery.innerHTML = '';
+
+                this.posts.forEach((url, index) => {
+                    const card = document.createElement('div');
+                    card.className = 'video-card loading';
+                    card.style.setProperty('--index', index);
+
+                    // Instagram埋め込み用URL変換
+                    const embedUrl = this.convertToEmbedUrl(url);
+
+                    const iframe = document.createElement('iframe');
+                    iframe.src = embedUrl;
+                    iframe.allow = 'autoplay; encrypted-media';
+                    iframe.style.cssText = `
+                        width: 100%;
+                        height: 100%;
+                        border: none;
+                        border-radius: 16px;
+                    `;
+
+                    // iframeロード完了時
+                    iframe.onload = () => {
+                        card.classList.remove('loading');
+                        this.log(`✓ Card ${index + 1} loaded`);
+
+                        // Instagram embedスクリプトを再処理
+                        if (window.instgrm && window.instgrm.Embed) {
+                            window.instgrm.Embed.process(iframe);
+                        }
+                    };
+
+                    iframe.onerror = () => {
+                        card.classList.remove('loading');
+                        card.innerHTML = '<div style="color: #f00; text-align: center; padding: 20px;">投稿の読み込みに失敗しました</div>';
+                        this.log(`✗ Card ${index + 1} failed`);
+                    };
+
+                    card.appendChild(iframe);
+                    this.gallery.appendChild(card);
+                });
+
+                // Instagram embed スクリプト読み込み
+                this.loadInstagramEmbed();
+            }
+
+            /**
+             * URLをInstagram埋め込み用に変換
+             */
+            convertToEmbedUrl(url) {
+                url = url.trim().replace(/\/$/, '');
+                if (!url.includes('/embed')) {
+                    url = url + '/embed/captioned/';
+                }
+                return url;
+            }
+
+            /**
+             * Instagram embed スクリプト読み込み（キャッシュ対応）
+             */
+            loadInstagramEmbed() {
+                if (window.instgrm) {
+                    window.instgrm.Embed.process();
+                    return;
+                }
+
+                // スクリプト動的読み込み
+                const script = document.createElement('script');
+                script.src = 'https://www.instagram.com/embed.js';
+                script.async = true;
+                script.defer = true;
+
+                script.onload = () => {
+                    if (window.instgrm && window.instgrm.Embed) {
+                        window.instgrm.Embed.process();
+                        this.log('✓ Instagram embed script loaded');
+                    }
+                };
+
+                script.onerror = () => {
+                    this.log('⚠ Instagram embed script failed');
+                };
+
+                document.body.appendChild(script);
+            }
+
+            /**
+             * リアルタイム時刻表示
+             */
+            startClock() {
+                const updateTime = () => {
+                    const now = new Date();
+                    const timeString = now.toLocaleTimeString('ja-JP', {
+                        hour: '2-digit',
+                        minute: '2-digit',
+                        second: '2-digit',
+                    });
+                    this.currentTimeEl.textContent = timeString;
+                };
+
+                updateTime();
+                setInterval(updateTime, 1000);
+            }
+
+            /**
+             * デバッグログ
+             */
+            log(message) {
+                if (this.config.debug) {
+                    console.log(message);
+                    const timestamp = new Date().toLocaleTimeString();
+                    this.debugInfo.textContent += `[${timestamp}] ${message}\n`;
+                    const lines = this.debugInfo.textContent.split('\n');
+                    if (lines.length > 100) {
+                        this.debugInfo.textContent = lines.slice(-100).join('\n');
+                    }
+                    this.debugInfo.scrollTop = this.debugInfo.scrollHeight;
+                }
+            }
+        }
+
+        // ============================================
+        // 初期化
+        // ============================================
+
+        document.addEventListener('DOMContentLoaded', async () => {
+            const signage = new InstagramSignage(CONFIG);
+        });
+    </script>
+</body>
+</html>
