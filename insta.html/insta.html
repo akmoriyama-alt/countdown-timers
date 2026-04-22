@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=1920, height=1080">
+  <title>NIHONISEN | Pure Innovation Signage</title>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@100;300;600&family=Noto+Sans+JP:wght@100;300;700&display=swap" rel="stylesheet">
+  <style>
+    /* Reset & Base */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body {
+      width: 1920px; height: 1080px;
+      overflow: hidden; background: #ffffff;
+      color: #000; font-family: 'Outfit', 'Noto Sans JP', sans-serif;
+      cursor: none;
+    }
+
+    /* 背景：微細なグラデーションで高級感を演出 */
+    body::before {
+      content: ""; position: absolute; inset: 0;
+      background: 
+        radial-gradient(at 80% 15%, rgba(240, 240, 255, 0.6) 0%, transparent 40%),
+        linear-gradient(135deg, #ffffff 0%, #fcfcfd 100%);
+      z-index: -1;
+    }
+
+    #main-container {
+      display: flex; width: 100%; height: 100%; align-items: center;
+    }
+
+    /* 左側：動画セクション */
+    #video-side {
+      flex: 0 0 55%; height: 100%;
+      display: flex; align-items: center; justify-content: center;
+    }
+
+    .viewport {
+      width: 520px; height: 924px; /* 縦長黄金比 */
+      background: #000; border-radius: 50px;
+      box-shadow: 0 60px 120px rgba(0,0,0,0.07), 0 20px 40px rgba(0,0,0,0.03);
+      overflow: hidden; border: 1px solid rgba(0,0,0,0.02);
+    }
+    video { width: 100%; height: 100%; object-fit: cover; }
+
+    /* 右側：ブランディングセクション */
+    #info-side {
+      flex: 0 0 45%; height: 100%;
+      display: flex; flex-direction: column;
+      justify-content: center; align-items: flex-start;
+      padding-left: 80px; position: relative;
+    }
+
+    /* ロゴ */
+    .brand-box { transform: translateY(-60px); }
+    #logo { width: 640px; height: auto; margin-bottom: 25px; }
+    
+    .tagline-container {
+      display: flex; align-items: center; gap: 20px;
+      padding-left: 5px;
+    }
+    .tagline {
+      font-size: 18px; font-weight: 300; color: #999;
+      letter-spacing: 0.7em; text-transform: uppercase;
+    }
+    .line { width: 40px; height: 1px; background: #ddd; }
+
+    /* 時計：先進的タイポグラフィ */
+    #status-bar {
+      position: absolute; bottom: 80px; left: 80px;
+      display: flex; align-items: flex-end; gap: 40px;
+    }
+    #clock {
+      font-size: 130px; font-weight: 100; color: #000;
+      line-height: 0.8; letter-spacing: -0.05em;
+    }
+    .date-box {
+      border-left: 1px solid #eee; padding-left: 30px; margin-bottom: 10px;
+    }
+    #date-text { font-size: 26px; font-weight: 300; color: #888; letter-spacing: 0.1em; }
+    .location-text { font-size: 14px; font-weight: 600; color: #bbb; letter-spacing: 0.3em; margin-top: 5px; }
+
+    /* ON AIR インジケーター */
+    .live-dot {
+      position: absolute; top: 80px; left: 80px;
+      font-size: 12px; font-weight: 700; color: #000;
+      display: flex; align-items: center; gap: 10px; letter-spacing: 0.2em;
+    }
+    .dot { width: 8px; height: 8px; background: #000; border-radius: 50%; animation: pulse 2s infinite; }
+    @keyframes pulse { 0% { transform: scale(1); opacity: 1; } 50% { transform: scale(1.5); opacity: 0.4; } 100% { transform: scale(1); opacity: 1; } }
+  </style>
+</head>
+<body>
+
+<div id="main-container">
+  <section id="video-side">
+    <div class="viewport">
+      <video id="player" src="video1.mov" muted playsinline loop autoplay></video>
+    </div>
+  </section>
+
+  <section id="info-side">
+    <div class="live-dot">
+      <div class="dot"></div> DIGITAL SIGNAGE / LIVE MODE
+    </div>
+
+    <div class="brand-box">
+      <img src="logo.jpg" alt="NIHONISEN" id="logo">
+      <div class="tagline-container">
+        <div class="line"></div>
+        <div class="tagline">The Future of Medical Care</div>
+      </div>
+    </div>
+
+    <div id="status-bar">
+      <div id="clock">00:00</div>
+      <div class="date-box">
+        <div id="date-text">2026.04.22</div>
+        <div class="location-text">TOKYO DISTRICT</div>
+      </div>
+    </div>
+  </section>
+</div>
+
+<script>
+  // 時計と日付のリアルタイム更新
+  function updateTime() {
+    const now = new Date();
+    document.getElementById('clock').textContent = now.toLocaleTimeString('ja-JP', { hour: '2-digit', minute: '2-digit', hour12: false });
+    
+    const y = now.getFullYear();
+    const m = String(now.getMonth() + 1).padStart(2, '0');
+    const d = String(now.getDate()).padStart(2, '0');
+    document.getElementById('date-text').textContent = `${y}.${m}.${d}`;
+  }
+
+  // 初期化
+  window.addEventListener('DOMContentLoaded', () => {
+    setInterval(updateTime, 1000);
+    updateTime();
+    
+    // 動画の自動再生を確実にする
+    const player = document.getElementById('player');
+    player.play().catch(() => {
+      console.log("Waiting for user interaction to start video");
+    });
+  });
+
+  // 画面クリックで再生（ブラウザの自動再生ブロック対策）
+  window.addEventListener('mousedown', () => {
+    const player = document.getElementById('player');
+    if (player.paused) player.play();
+  });
+
+  // 24時間ごとにページを自動更新（安定稼働用）
+  setTimeout(() => location.reload(), 86400000);
+</script>
+
+</body>
+</html>
